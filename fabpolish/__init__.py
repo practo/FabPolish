@@ -3,6 +3,7 @@ import sys
 
 from functools import wraps
 
+from fabric.main import list_commands
 from fabric.api import lcd, local, settings, task, puts, hide
 from fabric.colors import green
 
@@ -10,7 +11,7 @@ import fabfile
 
 FABFILE_DIR = os.path.abspath(os.path.dirname(fabfile.__file__))
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 
 def info(text):
@@ -77,13 +78,20 @@ def polish(env='dev'):
     When environment is 'dev', only fast-critical and fast-major
     sniffs are run.
     """
+    fabric_tasks = list_commands('', 'short')
     results = list()
     with settings(warn_only=True):
         if env == 'ci':
-            sniffs_to_run = _sniffs
+            sniffs_to_run = []
+            for sniff in _sniffs:
+                if sniff['function'].name not in fabric_tasks:
+                    continue
+                sniffs_to_run.append(sniff)
         elif env == 'dev':
             sniffs_to_run = []
             for sniff in _sniffs:
+                if sniff['function'].name not in fabric_tasks:
+                    continue
                 if sniff['timing'] != 'fast':
                     continue
                 if sniff['severity'] not in ('critical', 'major'):
