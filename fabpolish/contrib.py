@@ -21,6 +21,18 @@ def find_php_syntax_errors():
     )
 
 
+@sniff(severity='major', timing='fast')
+def code_analyzer():
+    """Running static code analyzer"""
+    info('Running static code analyzer')
+    return local(
+        "git ls-files -z | "
+        "grep -PZz '\.py$' | "
+        "grep -PZvz 'fabfile.py' | "
+        "xargs -0 pyflakes"
+    )
+
+
 @sniff(severity='minor', timing='slow')
 def find_pep8_violations():
     """Run pep8 python coding standard check
