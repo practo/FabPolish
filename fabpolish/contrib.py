@@ -44,7 +44,7 @@ def find_pep8_violations():
         "xargs -0 pep8"
     )
 
-    
+
 @sniff(severity='major', timing='fast')
 def fix_file_permission():
     """Fixing permissions for files"""
@@ -55,7 +55,7 @@ def fix_file_permission():
         "xargs -0 chmod -c 0664 > /dev/null 2>&1"
     )
 
-    
+
 @sniff(severity='major', timing='fast')
 def fix_script_permission():
     # Fix script permissions
@@ -66,7 +66,7 @@ def fix_script_permission():
         "xargs -0 -r chmod 0775 >/dev/null 2>&1"
     )
 
-    
+
 @sniff(severity='major', timing='fast')
 def fix_white_space():
     info('Fixing whitespace errors...')
@@ -115,7 +115,8 @@ def remove_debug_info():
 def check_image_edited():
     # Check if image files have been edited
     info('Checking if image files have been edited...')
-    info('Explanation: A new image should be created when editing images to avoid browser caching')
+    info('Explanation: A new image should be created when '
+         'editing images to avoid browser caching')
     branch = local('git rev-parse --abbrev-ref HEAD')
     return local(
         '! git diff master...' + branch +
