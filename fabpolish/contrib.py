@@ -72,7 +72,7 @@ def fix_white_space():
     info('Fixing whitespace errors...')
     return local(
         "git ls-files -z | "
-        "grep -PZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav)$' | "
+        "grep -PZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav|xlxs)$' | "
         "xargs -0 grep -PlZn '(\\s+$)|(\\t)' | "
         "tee /dev/stderr | "
         "xargs -0 -r sed -i -e 's/\\s\\+$//' "
@@ -84,7 +84,7 @@ def convert_tab_spaces():
     info('Converting tab to spaces...')
     return local(
         "git ls-files -z | "
-        "grep -PZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav)$' | "
+        "grep -PZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav|xlxs)$' | "
         "xargs -0 grep -PlZn '(\\s+$)|(\\t)' | "
         "tee /dev/stderr | "
         "xargs -0 -r sed -i -e 's/\\t/    /g' "
