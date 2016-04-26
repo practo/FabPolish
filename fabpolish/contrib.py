@@ -123,3 +123,9 @@ def check_image_edited():
         ' --name-only --diff-filter=M | ' +
         'grep ".gif\|.png\|.jpg"'
     )
+
+
+@sniff(severity='critical', timing='fast')
+def composer_validate():
+    info('Running composer validate...')
+    return local('composer validate')
