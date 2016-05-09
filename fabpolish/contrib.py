@@ -129,3 +129,9 @@ def check_image_edited():
 def composer_validate():
     info('Running composer validate...')
     return local('composer validate')
+
+
+@sniff(severity='major', timing='fast')
+def eslint():
+    info('Running ESLint:')
+    return local("! ./node_modules/eslint/bin/eslint.js app/assets/javascripts/src/*")
