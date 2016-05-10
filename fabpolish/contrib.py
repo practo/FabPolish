@@ -22,7 +22,7 @@ def find_php_syntax_errors():
 
 
 @sniff(severity='major', timing='fast')
-def code_analyzer():
+def python_code_analyzer():
     """Running static code analyzer"""
     info('Running static code analyzer')
     return local(
@@ -99,7 +99,7 @@ def check_migration_branch():
 
 
 @sniff(severity='major', timing='fast')
-def remove_debug_info():
+def check_python_debug_info():
     """Check and remove debugging print statements"""
     info('Checking for debug print statements')
     return local(
@@ -108,6 +108,15 @@ def remove_debug_info():
         "grep -PZz \.py$ | "
         "xargs -0 grep -Pn \'(?<![Bb]lue|>>> )print\' | "
         "grep -v NOCHECK"
+    )
+
+
+@sniff(severity='major', timing='fast')
+def check_php_debug_info():
+    info('Checking for var_dump, echo or die statements...')
+    return local(
+        "! find ./src -name '*.php' -print0 | "
+        "xargs -0 egrep -n 'var_dump|echo|die' | grep -v 'NOCHECK'"
     )
 
 
@@ -138,4 +147,13 @@ def run_eslint():
         "git ls-files | "
         "grep '\.js$' | "
         "xargs ./node_modules/eslint/bin/eslint.js"
+    )
+
+
+@sniff(severity='major', timing='fast')
+def check_preg_replace():
+    info('Checking use of preg_replace...')
+    return local(
+        "! find src -name '*.php' -print0 | "
+        "xargs -0 grep -n 'preg_replace('"
     )
