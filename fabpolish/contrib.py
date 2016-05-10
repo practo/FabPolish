@@ -141,6 +141,16 @@ def composer_validate():
 
 
 @sniff(severity='major', timing='fast')
+def run_eslint():
+    info('Running ESLint...')
+    return local(
+        "git ls-files | "
+        "grep '\.js$' | "
+        "xargs ./node_modules/eslint/bin/eslint.js"
+    )
+
+
+@sniff(severity='major', timing='fast')
 def check_preg_replace():
     info('Checking use of preg_replace...')
     return local(
