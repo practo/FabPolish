@@ -129,3 +129,13 @@ def check_image_edited():
 def composer_validate():
     info('Running composer validate...')
     return local('composer validate')
+
+
+@sniff(severity='major', timing='fast')
+def run_eslint():
+    info('Running ESLint...')
+    return local(
+        "git ls-files | "
+        "grep '\.js$' | "
+        "xargs ./node_modules/eslint/bin/eslint.js"
+    )
