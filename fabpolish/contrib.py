@@ -133,5 +133,5 @@ def composer_validate():
 
 @sniff(severity='major', timing='fast')
 def run_eslint():
-    info('Running ESLint:')
+    info('Running ESLint...')
     return local("./node_modules/eslint/bin/eslint.js .")
