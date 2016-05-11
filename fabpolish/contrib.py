@@ -146,7 +146,7 @@ def run_eslint():
     return local(
         "git ls-files | "
         "grep '\.js$' | "
-        "xargs ./node_modules/eslint/bin/eslint.js"
+        "xargs ./node_modules/eslint/bin/eslint.js --config '.eslintrc_travis'"
     )
 
 
