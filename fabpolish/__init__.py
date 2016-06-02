@@ -7,6 +7,8 @@ from fabric.main import list_commands
 from fabric.api import lcd, local, settings, task, puts, hide
 from fabric.colors import green
 
+from time import time
+
 import fabfile
 
 FABFILE_DIR = os.path.abspath(os.path.dirname(fabfile.__file__))
@@ -100,7 +102,9 @@ def polish(env='dev'):
         else:
             raise ValueError('env must be one of: ' + str(['dev', 'ci']))
         for sniff in sniffs_to_run:
+            t_start = time()
             results.append(sniff['function']())
+            print sniff['function'].name, 'took', (time() - t_start), 'ms'
 
     if any(result.failed for result in results):
         sys.exit(1)
