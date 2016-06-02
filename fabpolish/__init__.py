@@ -104,7 +104,7 @@ def polish(env='dev'):
         for sniff in sniffs_to_run:
             t_start = time()
             results.append(sniff['function']())
-            print sniff['function'].name, 'took', (time() - t_start), 'ms'
+            print sniff['function'].name, 'took', (time() - t_start), 's'
 
     if any(result.failed for result in results):
         sys.exit(1)
