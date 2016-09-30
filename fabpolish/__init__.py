@@ -1,6 +1,8 @@
 import os
 import sys
 
+from collections import OrderedDict
+
 from functools import wraps
 
 from fabric.main import list_commands
@@ -81,26 +83,28 @@ def polish(env='dev'):
     fabric_tasks = list_commands('', 'short')
     results = list()
     with settings(warn_only=True):
+        sniffs_to_run = OrderedDict()
         if env == 'ci':
-            sniffs_to_run = []
             for sniff in _sniffs:
-                if sniff['function'].name not in fabric_tasks:
+                method_name = sniff['function'].name
+                if method_name not in fabric_tasks:
                     continue
-                sniffs_to_run.append(sniff)
+                sniffs_to_run[method_name] = sniff['function']
         elif env == 'dev':
-            sniffs_to_run = []
             for sniff in _sniffs:
-                if sniff['function'].name not in fabric_tasks:
+                method_name = sniff['function'].name
+                if method_name not in fabric_tasks:
                     continue
                 if sniff['timing'] != 'fast':
                     continue
                 if sniff['severity'] not in ('critical', 'major'):
                     continue
-                sniffs_to_run.append(sniff)
+                sniffs_to_run[method_name] = sniff['function']
         else:
             raise ValueError('env must be one of: ' + str(['dev', 'ci']))
-        for sniff in sniffs_to_run:
-            results.append(sniff['function']())
+
+        for method_name in sniffs_to_run:
+            results.append(sniffs_to_run[method_name]())
 
     if any(result.failed for result in results):
         sys.exit(1)
