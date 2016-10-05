@@ -52,6 +52,7 @@ def fix_file_permission():
     return local(
         "git ls-files -z | "
         "grep -PvZz '\.sh$' | "
+        "grep -PvZz 'app/console' | "
         "xargs -0 chmod -c 0664 > /dev/null 2>&1"
     )
 
