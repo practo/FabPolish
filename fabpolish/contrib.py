@@ -163,10 +163,10 @@ def check_preg_replace():
 def composer_security_check_symfony2():
     """Requires sensio/distribution-bundle = v3.0.* """
     info('Running security check for composer dependencies...')
-    return local("php bin/console security:check")
+    return local("php app/console security:check")
 
 
 @sniff(severity='major', timing='fast')
 def composer_security_check_symfony3():
     info('Running security check for composer dependencies...')
-    return local("php app/console security:check")  
+    return local("php bin/console security:check")  
