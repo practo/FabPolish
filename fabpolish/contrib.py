@@ -157,3 +157,10 @@ def check_preg_replace():
         "! find src -name '*.php' -print0 | "
         "xargs -0 grep -n 'preg_replace('"
     )
+
+
+@sniff(severity='major', timing='fast')
+def composer_security_check_npm():
+    """Requires nsp in package"""
+    info('Running security check for npm dependencies...')
+    return local("nsp check")
