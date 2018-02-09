@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='fab-polish',
-      version='1.1.0',
+      version='1.2.0',
       description='Polish git versioned source code using Fabric',
       url='https://github.com/practo/FabPolish',
       author='J Kishore Kumar',
@@ -9,6 +9,6 @@ setup(name='fab-polish',
       license='MIT',
       packages=['fabpolish'],
       install_requires=[
-          'fabric',
+          'fabric3',
       ],
       zip_safe=False)
