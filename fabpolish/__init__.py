@@ -11,7 +11,7 @@ import fabfile
 
 FABFILE_DIR = os.path.abspath(os.path.dirname(fabfile.__file__))
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 
 def info(text):
