@@ -9,6 +9,6 @@ setup(name='fab-polish',
       license='MIT',
       packages=['fabpolish'],
       install_requires=[
-          'fabric3', 'pyflakes', 'pycodestyle'
+          'fabric3<2'
       ],
       zip_safe=False)
