@@ -41,7 +41,7 @@ def find_pep8_violations():
     return local(
         "git ls-files -z | "
         "grep -PZz '\.py$' | "
-        "xargs -0 pycodestyle"
+        "xargs -0 pep8"
     )
 
 
