@@ -40,7 +40,7 @@ def find_pep8_violations():
     info('Running coding standards check for python files...')
     return local(
         "git ls-files -z | "
-        "grep -PZz '\.py$' | "
+        "grep -EZz '\.py$' | "
         "xargs -0 pep8"
     )
 
