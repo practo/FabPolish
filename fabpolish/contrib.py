@@ -16,7 +16,7 @@ def find_php_syntax_errors():
     info('Finding syntax error in php files...')
     return local(
         "git ls-files -z | "
-        "grep -PZz '\.(php|phtml)$' | "
+        "grep -EZz '\.(php|phtml)$' | "
         "xargs -0 -n 1 php -l >/tmp/debug"
     )
 
@@ -27,8 +27,8 @@ def python_code_analyzer():
     info('Running static code analyzer')
     return local(
         "git ls-files -z | "
-        "grep -PZz '\.py$' | "
-        "grep -PZvz 'fabfile.py' | "
+        "grep -EZz '\.py$' | "
+        "grep -EZvz 'fabfile.py' | "
         "xargs -0 pyflakes"
     )
 
@@ -51,7 +51,7 @@ def fix_file_permission():
     info('Fixing permissions for files')
     return local(
         "git ls-files -z | "
-        "grep -PvZz '\.sh$' | "
+        "grep -EvZz '\.sh$' | "
         "xargs -0 chmod -c 0664 > /dev/null 2>&1"
     )
 
@@ -62,7 +62,7 @@ def fix_script_permission():
     info('Fixing script permissions...')
     return local(
         "git ls-files -z | "
-        "grep -PZz '\.sh$' | "
+        "grep -EZz '\.sh$' | "
         "xargs -0 -r chmod 0775 >/dev/null 2>&1"
     )
 
@@ -72,7 +72,7 @@ def fix_white_space():
     info('Fixing whitespace errors...')
     return local(
         "git ls-files -z | "
-        "grep -PZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav|xlxs)$' | "
+        "grep -EZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav|xlxs)$' | "
         "xargs -0 grep -PlZn '(\\s+$)|(\\t)' | "
         "tee /dev/stderr | "
         "xargs -0 -r sed -i -e 's/\\s\\+$//' "
@@ -84,7 +84,7 @@ def convert_tab_spaces():
     info('Converting tab to spaces...')
     return local(
         "git ls-files -z | "
-        "grep -PZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav|xlxs)$' | "
+        "grep -EZvz '\.(ico|jpg|png|gif|eot|ttf|woff|wav|xlxs)$' | "
         "xargs -0 grep -PlZn '(\\s+$)|(\\t)' | "
         "tee /dev/stderr | "
         "xargs -0 -r sed -i -e 's/\\t/    /g' "
@@ -104,8 +104,8 @@ def check_python_debug_info():
     info('Checking for debug print statements')
     return local(
         "! git ls-files -z | "
-        "grep -PZvz 'fabfile.py' | "
-        "grep -PZz \.py$ | "
+        "grep -EZvz 'fabfile.py' | "
+        "grep -EZz \.py$ | "
         "xargs -0 grep -Pn \'(?<![Bb]lue|>>> )print\' | "
         "grep -v NOCHECK"
     )
