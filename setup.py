@@ -1,3 +1,4 @@
+"""This is setup.py. Ment for installation of package."""
 from setuptools import setup
 
 setup(name='fab-polish',

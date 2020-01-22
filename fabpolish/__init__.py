@@ -1,3 +1,4 @@
+"""init for package import."""
 import os
 import sys
 
@@ -15,6 +16,7 @@ __version__ = '1.2.0'
 
 
 def info(text):
+    """Get information about input."""
     puts(green(text))
 
 
@@ -34,14 +36,16 @@ _sniffs = []
 
 
 def sniff(*args, **kwargs):
-    """ Decorator to collect sniffs and execute on polish
-        :param severity: Keyword argument only.
-                         One of 'critical', 'major', 'minor', 'info'
-                         Default: 'critical'
-        :type severity: str
-        :param timing: Keyword argument only. One of 'slow', 'fast'
-                       Default: 'fast'
-        :type timing: str
+    """
+    Decorate to collect sniffs and execute on polish.
+
+    :param severity: Keyword argument only.
+                        One of 'critical', 'major', 'minor', 'info'
+                        Default: 'critical'
+    :type severity: str
+    :param timing: Keyword argument only. One of 'slow', 'fast'
+                    Default: 'fast'
+    :type timing: str
     """
     DEFAULT_SEVERITY = 'critical'
     DEFAULT_TIMING = 'fast'
@@ -68,7 +72,9 @@ def sniff(*args, **kwargs):
 
 @task
 def polish(env='dev'):
-    """Polish code by running some or all sniffs
+    """
+    Polish code by running some or all sniffs.
+
     :param env: Environment to determine what all sniffs to run
                 Options: 'dev', 'ci'
                 Default: 'dev'
@@ -78,23 +84,27 @@ def polish(env='dev'):
     When environment is 'dev', only fast-critical and fast-major
     sniffs are run.
     """
+    def check(sniff):
+        """
+        Check function name in frabic_tasks and not fast also note
+        severity critical or major.
+        """
+        return sniff['function'].name not in fabric_tasks or \
+            sniff['timing'] != 'fast' or \
+            sniff['severity'] not in ('critical', 'major')
+
     fabric_tasks = list_commands('', 'short')
     results = list()
     with settings(warn_only=True):
+        sniffs_to_run = []
         if env == 'ci':
-            sniffs_to_run = []
-            for sniff in _sniffs:
-                if sniff['function'].name not in fabric_tasks:
-                    continue
+            for sniff in filter(
+                lambda each: each['function'].name in fabric_tasks, _sniffs
+            ):
                 sniffs_to_run.append(sniff)
         elif env == 'dev':
-            sniffs_to_run = []
             for sniff in _sniffs:
-                if sniff['function'].name not in fabric_tasks:
-                    continue
-                if sniff['timing'] != 'fast':
-                    continue
-                if sniff['severity'] not in ('critical', 'major'):
+                if check(sniff):
                     continue
                 sniffs_to_run.append(sniff)
         else:
@@ -107,10 +117,12 @@ def polish(env='dev'):
 
 
 def update_sniff(function, severity=None, timing=None):
-    if type(function) == str:
+    """Update sniff dict."""
+    if isinstance(function, str):
         function_name = function
     else:
         function_name = function.name
+    sniff = {}
     for sniff in _sniffs:
         if sniff['function'].name == function_name:
             break
