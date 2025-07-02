@@ -1,11 +1,12 @@
 import os
 import sys
+import subprocess
 
 from functools import wraps
 
-from fabric.main import list_commands
-from fabric.api import lcd, local, settings, task, puts, hide
-from fabric.colors import green
+from fabric import task
+from fabric import Connection
+from invoke import Collection
 
 import fabfile
 
@@ -15,7 +16,7 @@ __version__ = '1.2.0'
 
 
 def info(text):
-    puts(green(text))
+    print(f"\033[32m{text}\033[0m")  # Green color equivalent
 
 
 def validate_severity(severity):
@@ -54,9 +55,16 @@ def sniff(*args, **kwargs):
     def decorator(func):
         @task
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            with lcd(FABFILE_DIR), settings(hide('running')):
-                return func(*args, **kwargs)
+        def wrapper(c, *args, **kwargs):
+            # Create a local connection for executing commands
+            with Connection('localhost') as conn:
+                # Change to fabfile directory
+                original_cwd = os.getcwd()
+                os.chdir(FABFILE_DIR)
+                try:
+                    return func(conn, *args, **kwargs)
+                finally:
+                    os.chdir(original_cwd)
         _sniffs.append({
             'severity': severity,
             'timing': timing,
@@ -66,8 +74,14 @@ def sniff(*args, **kwargs):
     return decorator if invoked else decorator(args[0])
 
 
+def local(c, command):
+    """Execute a local command using Fabric 2.x Connection"""
+    result = c.local(command, hide=True)
+    return result
+
+
 @task
-def polish(env='dev'):
+def polish(c, env='dev'):
     """Polish code by running some or all sniffs
     :param env: Environment to determine what all sniffs to run
                 Options: 'dev', 'ci'
@@ -78,31 +92,47 @@ def polish(env='dev'):
     When environment is 'dev', only fast-critical and fast-major
     sniffs are run.
     """
-    fabric_tasks = list_commands('', 'short')
+    # Get available tasks from the current collection
+    collection = Collection.from_module(fabfile)
+    fabric_tasks = list(collection.task_names)
+    
     results = list()
-    with settings(warn_only=True):
-        if env == 'ci':
-            sniffs_to_run = []
-            for sniff in _sniffs:
-                if sniff['function'].name not in fabric_tasks:
-                    continue
-                sniffs_to_run.append(sniff)
-        elif env == 'dev':
-            sniffs_to_run = []
-            for sniff in _sniffs:
-                if sniff['function'].name not in fabric_tasks:
-                    continue
-                if sniff['timing'] != 'fast':
-                    continue
-                if sniff['severity'] not in ('critical', 'major'):
-                    continue
-                sniffs_to_run.append(sniff)
-        else:
-            raise ValueError('env must be one of: ' + str(['dev', 'ci']))
+    
+    if env == 'ci':
+        sniffs_to_run = []
+        for sniff in _sniffs:
+            if sniff['function'].name not in fabric_tasks:
+                continue
+            sniffs_to_run.append(sniff)
+    elif env == 'dev':
+        sniffs_to_run = []
+        for sniff in _sniffs:
+            if sniff['function'].name not in fabric_tasks:
+                continue
+            if sniff['timing'] != 'fast':
+                continue
+            if sniff['severity'] not in ('critical', 'major'):
+                continue
+            sniffs_to_run.append(sniff)
+    else:
+        raise ValueError('env must be one of: ' + str(['dev', 'ci']))
+    
+    # Create a connection for executing tasks
+    with Connection('localhost') as conn:
         for sniff in sniffs_to_run:
-            results.append(sniff['function']())
+            try:
+                result = sniff['function'](conn)
+                results.append(result)
+            except Exception as e:
+                # Create a failed result object
+                class FailedResult:
+                    def __init__(self, exception):
+                        self.failed = True
+                        self.exited = 1
+                        self.exception = exception
+                results.append(FailedResult(e))
 
-    if any(result.failed for result in results):
+    if any(hasattr(result, 'failed') and result.failed for result in results):
         sys.exit(1)
 
 

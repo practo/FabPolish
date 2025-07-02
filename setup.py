@@ -9,6 +9,6 @@ setup(name='fab-polish',
       license='MIT',
       packages=['fabpolish'],
       install_requires=[
-          'fabric3<2'
+          'fabric>=2.0.0'
       ],
       zip_safe=False)
